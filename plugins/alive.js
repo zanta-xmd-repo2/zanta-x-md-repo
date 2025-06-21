@@ -1,115 +1,104 @@
-const { cmd } = require("../command");
-const moment = require("moment");
+const config = require('../config');
+const { cmd } = require('../command');
+const { ytsearch } = require('@dark-yasiya/yt-dl.js');
 
-let botStartTime = Date.now(); // Bot start time record
+// MP4 video download
 
-// ✅ Random Voice Clips List එක
-const VOICE_CLIPS = [
-    "https://files.catbox.moe/r4r0hz.mp3",
-    "https://files.catbox.moe/3pzzgr.mp3",
-    "https://files.catbox.moe/qvpa5o.mp3",
-    "https://files.catbox.moe/y29b3n.mp3",
-    "https://files.catbox.moe/w7yg8f.mp3",
-    "https://files.catbox.moe/4rm2fz.mp3",
-    "https://files.catbox.moe/gr8wlt.mp3",
-    "https://files.catbox.moe/xvue61.mp3",
-    "https://files.catbox.moe/uosvov.mp3",
-    "https://files.catbox.moe/2vgkwr.mp3",
-    "https://files.catbox.moe/gqw8fl.m4a",
-    "https://files.catbox.moe/mc5r2s.mp3",
-    "https://files.catbox.moe/ck4reh.mp3",
-    "https://files.catbox.moe/ypbfyt.mp3",
-    "https://files.catbox.moe/75p1zt.mp3",
-    "https://files.catbox.moe/rd21pi.mp3",
-    "https://files.catbox.moe/ggebie.mp3",
-    "https://files.catbox.moe/r4r0hz.mp3"
-];
+cmd({ 
+    pattern: "mp4", 
+    alias: ["video"], 
+    react: "🎥", 
+    desc: "Download YouTube video", 
+    category: "main", 
+    use: '.mp4 < Yt url or Name >', 
+    filename: __filename 
+}, async (conn, mek, m, { from, prefix, quoted, q, reply }) => { 
+    try { 
+        if (!q) return await reply("Please provide a YouTube URL or video name.");
+        
+        const yt = await ytsearch(q);
+        if (yt.results.length < 1) return reply("No results found!");
+        
+        let yts = yt.results[0];  
+        let apiUrl = `https://apis.davidcyriltech.my.id/download/ytmp4?url=${encodeURIComponent(yts.url)}`;
+        
+        let response = await fetch(apiUrl);
+        let data = await response.json();
+        
+        if (data.status !== 200 || !data.success || !data.result.download_url) {
+            return reply("Failed to fetch the video. Please try again later.");
+        }
 
-const ALIVE_VIDEO = "https://files.catbox.moe/52py80.mp4"; // මෙතැන valid MP4 video link එකක් දාන්න
+        let ytmsg = `📹 *Video Downloader*
+🎬 *Title:* ${yts.title}
+⏳ *Duration:* ${yts.timestamp}
+👀 *Views:* ${yts.views}
+👤 *Author:* ${yts.author.name}
+🔗 *Link:* ${yts.url}
+> POWERED BY SOLO-LEVELING YT DOWNLOAD`;
 
-cmd({
-    pattern: "alive3",
-    desc: "Check if the bot is active.",
-    category: "info",
-    react: "🤖",
-    filename: __filename
-}, async (conn, mek, m, { reply, from }) => {
+        // Send video directly with caption
+        await conn.sendMessage(
+            from, 
+            { 
+                video: { url: data.result.download_url }, 
+                caption: ytmsg,
+                mimetype: "video/mp4"
+            }, 
+            { quoted: mek }
+        );
+
+    } catch (e) {
+        console.log(e);
+        reply("An error occurred. Please try again later.");
+    }
+});
+
+// MP3 song download 
+
+cmd({ 
+    pattern: "song", 
+    alias: ["play", "mp3"], 
+    react: "🎶", 
+    desc: "Download YouTube song", 
+    category: "main", 
+    use: '.song <query>', 
+    filename: __filename 
+}, async (conn, mek, m, { from, sender, reply, q }) => { 
     try {
-        const pushname = m.pushName || "User";
-        const currentTime = moment().format("HH:mm:ss");
-        const currentDate = moment().format("dddd, MMMM Do YYYY");
+        if (!q) return reply("Please provide a song name or YouTube link.");
 
-        const runtimeMilliseconds = Date.now() - botStartTime;
-        const runtimeSeconds = Math.floor((runtimeMilliseconds / 1000) % 60);
-        const runtimeMinutes = Math.floor((runtimeMilliseconds / (1000 * 60)) % 60);
-        const runtimeHours = Math.floor(runtimeMilliseconds / (1000 * 60 * 60));
+        const yt = await ytsearch(q);
+        if (!yt.results.length) return reply("No results found!");
 
-        const formattedInfo = `
-⛩️ *QUEEN DINU MD STATUS* ⛩️
+        const song = yt.results[0];
+        const apiUrl = `https://apis.davidcyriltech.my.id/youtube/mp3?url=${encodeURIComponent(song.url)}`;
+        
+        const res = await fetch(apiUrl);
+        const data = await res.json();
 
-Hey 👋🏻 ${pushname}
+        if (!data?.result?.downloadUrl) return reply("Download failed. Try again later.");
 
-🕒 *Time*: 
-
-📅 *Date*: 
-
-⏳ *Uptime*: 
-
-*🤖sᴛᴀᴛᴜs*: *ꜱᴏʟᴏ ʟᴇᴠᴇʟɪɴɢ-ᴍᴅ ᴀʟɪᴠᴇ ᴀɴᴅ ʀᴇᴀᴅʏ*
-
-*🤍ᴍᴀᴅᴇ ᴡɪᴛʜ ʟᴏᴠᴇ*
-
-⛩️ *CHANEL :- https://whatsapp.com/channel/0029VbAWWH9BFLgRMCXVlU38*
-⛩️ *REPO :- https://github.com/RKA-BOT-TEST/SOLO-LEVELING.
-
-> *® POWERED BY QUEEN DINU MD BY CYBER DINU ID*
-        `.trim();
-
-        // ✅ Random Voice Clip එකක් Select කරනවා
-        const randomVoice = VOICE_CLIPS[Math.floor(Math.random() * VOICE_CLIPS.length)];
-
-        // Check if video & voice URLs are valid
-        if (!ALIVE_VIDEO || !ALIVE_VIDEO.startsWith("http")) {
-            throw new Error("Invalid ALIVE_VIDEO URL. Please set a valid video URL.");
+    await conn.sendMessage(from, {
+    audio: { url: data.result.downloadUrl },
+    mimetype: "audio/mpeg",
+    fileName: `${song.title}.mp3`,
+    contextInfo: {
+        externalAdReply: {
+            title: song.title.length > 25 ? `${song.title.substring(0, 22)}...` : song.title,
+            body: "Join our WhatsApp Channel",
+            mediaType: 1,
+            thumbnailUrl: song.thumbnail.replace('default.jpg', 'hqdefault.jpg'),
+            sourceUrl: 'https://whatsapp.com/channel/0029VbAWWH9BFLgRMCXVlU38',
+            mediaUrl: 'https://whatsapp.com/channel/0029VbAWWH9BFLgRMCXVlU38',
+            showAdAttribution: true,
+            renderLargerThumbnail: true
         }
-        if (!randomVoice || !randomVoice.startsWith("http")) {
-            throw new Error("Invalid Voice Clip URL. Please set a valid URL.");
-        }
-
-        // ✅ Random Voice Clip එක යවනවා
-        await conn.sendMessage(from, {
-            audio: { url: randomVoice },
-            mimetype: 'audio/mp4', // MP3 / OGG formats සඳහා auto detect වේ
-            ptt: true // 🎤 PTT (Push to Talk) වගේ play වේ
-        }, { quoted: mek });
-
-        // ✅ Video message with autoplay (GIF style)
-        await conn.sendMessage(from, {
-            video: { url: ALIVE_VIDEO }, // Video එකේ direct URL එක
-            caption: formattedInfo,
-            gifPlayback: true, // GIF වගේ autoplay වෙනවා (Sound play වෙන්නේ නැහැ)
-            contextInfo: { 
-                mentionedJid: [m.sender],
-                forwardingScore: 999,
-                isForwarded: true,
-                forwardedNewsletterMessageInfo: {
-                    newsletterJid: '120363401928208566@newsletter',
-                    newsletterName: 'QUEEN DINU ALIVE ⛩️',
-                    serverMessageId: 143
-                }
-            }
-        }, { quoted: mek });
+    }
+}, { quoted: mek });
 
     } catch (error) {
-        console.error("Error in alive command: ", error);
-        
-        const errorMessage = `
-❌ An error occurred while processing the alive command.
-🛠 *Error Details*:
-${error.message}
-
-Please report this issue or try again later.
-        `.trim();
-        return reply(errorMessage);
+        console.error(error);
+        reply("An error occurred. Please try again.");
     }
 });
