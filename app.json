@@ -1,21 +1,23 @@
 {
-  "name": "DRK-MD",
-  "description": "DRK-MD Whatsapp Multidevice Bot",
-  "logo": "https://i.ibb.co/ynpGMvp8/1160.jpg",
-  "keywords": ["bot / Sula"],
+  "name": "Yuresh-MD",
+  "description": "Javascript WhatsApp bot made by dushan",
+  "logo": "https://i.ibb.co/XrMd08Ds/5566.jpg",
+  "keywords": ["bot"],
   "success_url": "/",
 
   "env": {
     "SESSION_ID": {
       "description": "Put the session-id here.",
       "required": true
-    },
-
     
+ },
     "MONGODB": {
-      "description": "Put the mongodb url here.",
+      "description": "Enter Mongodb Url",
       "required": true
-    }
+
+          }
+
+
 },
 
      "buildpacks": [
@@ -25,3 +27,4 @@
      ],
   "stack": "heroku-24"
 }
+
