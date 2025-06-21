@@ -49,11 +49,11 @@ cmd({
 
 Hey 👋🏻 ${pushname}
 
-🕒 *Time*: ${currentTime}
+🕒 *Time*: 
 
-📅 *Date*: ${currentDate}
+📅 *Date*: 
 
-⏳ *Uptime*: ${runtimeHours} hours, ${runtimeMinutes} minutes, ${runtimeSeconds} seconds
+⏳ *Uptime*: 
 
 *🤖sᴛᴀᴛᴜs*: *ꜱᴏʟᴏ ʟᴇᴠᴇʟɪɴɢ-ᴍᴅ ᴀʟɪᴠᴇ ᴀɴᴅ ʀᴇᴀᴅʏ*
 
