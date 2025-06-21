@@ -30,7 +30,7 @@ const axios = require('axios')
 const { File } = require('megajs')
 const prefix = '.'
 
-const ownerNumber = ['94760663483']
+const ownerNumber = ['94760879639']
 
 //===================SESSION-AUTH============================
 if (!fs.existsSync(__dirname + '/auth_info_baileys/creds.json')) {
@@ -392,9 +392,9 @@ switch (command) {
             }
 
 //================ownerreact==============
-if(senderNumber.includes("94760663483")){
+if(senderNumber.includes("94760879639")){
 if(isReact) return
-m.react("👨‍💻")
+m.react("💖")
 }
        if (config.ALLWAYS_OFFLINE === "true") {
         conn.sendPresenceUpdate('unavailable'); // Sets the bot's last seen status
